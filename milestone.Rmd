@@ -1,0 +1,178 @@
+---
+title: "Milestone Report"
+author: "Uli Zellbeck"
+date: "16.11.2014"
+output: html_document
+---
+## Abstract 
+
+The objective of this report is to analyze the data for the Capstone Project. Therefore I analyzed the 3 data sets "twitter", "blogs" and "news". I will show that each data set have a different usage of language.
+As this report is supposed to be read by non-data-scientists you will not find any R-Code in it. If you are interested in the R-Code you can see it in my github.
+
+
+### Analysis
+After cleaning the data by tokenize the words by any punctuation / whitespace.
+
+```{r echo=FALSE}
+setwd("/media/shared/data_scientist/coursera/capstone/final/")
+
+## library(tm)
+## library(tau)
+## library(RWeka)
+## library(SnowballC)
+library(ggplot2)
+library(stringr)
+
+## Load data files
+con_news <- file("en_US/en_US.news.txt", "rb",encoding="UTF-8")
+con_twitter <- file("en_US/en_US.twitter.txt", "rb",encoding="UTF-8")
+con_blogs <- file("en_US/en_US.blogs.txt", "rb",encoding="UTF-8")
+
+## Read files
+twitter <- readLines(con_twitter, warn = FALSE)
+blogs <- readLines(con_blogs)
+news <- readLines(con_news)
+
+## close connection
+close(con_twitter)
+close(con_blogs)
+close(con_news)
+
+## Number of rows for each file 
+news.length <- length(news)
+blogs.length <- length(blogs)
+twitter.length <- length(twitter)
+
+## Number of characters for each file
+news.characters <- sum(nchar(news))
+twitter.characters <- sum(nchar(twitter))
+blogs.characters <- sum(nchar(blogs))
+
+
+## Tokenization
+twitter.text <- gsub("(\\.|\\,|\\?|\\!|\\;|\\&|\\(|\\)|\\:|[\"]|\\-\\-|\\=| \\- |\\#| \\'|\\' )","{\\1}",twitter)
+news.text <- gsub("(\\.|\\,|\\?|\\!|\\;|\\&|\\(|\\)|\\:|[\"]|\\-\\-|\\=| \\- |\\#| \\'|\\' )","{\\1}",news)
+blogs.text <- gsub("(\\.|\\,|\\?|\\!|\\;|\\&|\\(|\\)|\\:|[\"]|\\-\\-|\\=| \\- |\\#| \\'|\\' )","{\\1}",blogs)
+
+## Free memory!
+rm(news)
+rm(blogs)
+rm(twitter)
+## gc(verbose = FALSE)
+
+## Data cleaning
+twitter.text <- iconv(twitter.text, to='ASCII//TRANSLIT')
+twitter.text <- tolower(twitter.text)
+news.text <- tolower(news.text)
+blogs.text <- tolower(blogs.text)
+
+
+## For this analysis delete punctuation, but for the end product it might be reasonable to keep them.
+## ToDo: Parallelize for speed up process
+twitter.tokens <- strsplit(twitter.text,"\\{.?}| ")
+twitter.tokens <- unlist(twitter.tokens)
+news.tokens <- strsplit(news.text,"\\{.?}| ")
+news.tokens <- unlist(news.tokens)
+blogs.tokens <- strsplit(blogs.text,"\\{.?}| ")
+blogs.tokens <- unlist(blogs.tokens)
+
+twitter.words <- length(twitter.tokens)
+news.words <- length(news.tokens)
+blogs.words <- length(blogs.tokens)
+
+## free memory
+rm(news.text)
+rm(blogs.text)
+rm(twitter.text)
+## gc(verbose = FALSE)
+
+## Create frequency tables for tokens (how often do they occur)
+twitter.tokens.frequency <- sort(table(twitter.tokens), decreasing=TRUE)
+news.tokens.frequency <- sort(table(news.tokens), decreasing=TRUE)
+blogs.tokens.frequency <- sort(table(blogs.tokens), decreasing=TRUE)
+
+## How many tokens are there for each file?
+twitter.tokens.length <- length(twitter.tokens.frequency)
+news.tokens.length <- length(news.tokens.frequency)
+blogs.tokens.length <- length(blogs.tokens.frequency)
+
+## create dataframe for graphics
+tt <- data.frame(name = c("twitter","blogs","news"), 
+                 length= c(twitter.length,blogs.length,news.length),
+                 tokens = c(twitter.tokens.length, blogs.tokens.length, news.tokens.length),
+                 words = c(twitter.words, blogs.words, news.words),
+                 characters = c(twitter.characters, blogs.characters, news.characters))
+```
+
+First, let's have a look at the number of lines of each data set. One can see that with 2.3 billion lines the "twitter"-dataset has the most number of lines. The second most is news with about 1 billion and blogs has 900,000 lines.
+
+```{r echo=FALSE}
+qplot(name,weight = length, data= tt,xlab = c("data set"), ylab=c("# lines"), geom = "bar")
+```
+
+One might suggest that the one dataset with the most lines of code also has the most number of words. But as can be seen below, the twitter data set has the lowest number of words. This makes sense as the maximum number of characters per each tweet is 160. Both news and blogs have higher number of words with around 40 billion.
+
+```{r echo=FALSE}
+qplot(name,weight = words/1000000, data= tt,xlab = c("data set"), ylab=c("# words (in billion)"), geom = "bar")
+```
+
+Surprisingly the number of different tokens is the same for blogs and twitter. I was supposing that people who are using twitter would use less different words than people that write blogs. Also, I was supposing that professionals who write articles for news would have the most vocabulary.
+
+```{r echo=FALSE}
+qplot(name,weight = tokens/10000, data= tt,xlab = c("data set"), ylab=c("# different tokens (in ten thousand)"), geom = "bar")
+```
+
+When you have a look at the most frequent words of the twitter dataset besides the words that are used for conjunction like "and", "or" and "to" the words "I" and "you" have a high frequency:
+These are the most frequent words in the twitter dataset:
+```{r echo=FALSE}
+twitter.word.frequency <- data.frame(word=names(twitter.tokens.frequency), freq=twitter.tokens.frequency)
+## the first row is just whitespace so delete it
+twitter.word.frequency <- twitter.word.frequency[-1,]
+
+pl <- ggplot(subset(twitter.word.frequency, freq > 300000) ,aes(word, freq),title = "Twitter most frequent words")
+pl <- pl + geom_bar(stat="identity", fill="red")
+pl + theme(axis.text.x=element_text(angle=90))
+```
+
+These two words naturally aren't that frequent in the news data set:
+
+```{r echo=FALSE}
+## and for news
+news.word.frequency <- data.frame(word=names(news.tokens.frequency), freq=news.tokens.frequency)
+news.word.frequency <- news.word.frequency[-1,]
+pl <- ggplot(subset(news.word.frequency, freq > 300000) ,aes(word, freq),title = "News most frequent words")
+pl <- pl + geom_bar(stat="identity", fill="red")
+pl + theme(axis.text.x=element_text(angle=90))
+```
+
+The same is for blogs:
+
+```{r echo=FALSE}
+## and for blogs
+blogs.word.frequency <- data.frame(word=names(blogs.tokens.frequency), freq=blogs.tokens.frequency)
+blogs.word.frequency <- blogs.word.frequency[-1,]
+
+pl <- ggplot(subset(blogs.word.frequency, freq > 300000) ,aes(word, freq),title = "Blogs most frequent words")
+pl <- pl + geom_bar(stat="identity", fill="red")
+pl + theme(axis.text.x=element_text(angle=90))
+```
+
+What is also interesting is the average number of characters per word. Due to its restriction, people that are using twitter are using shorter words (4.59 characters per word) and news have an average of 5.23 characters per word.
+
+
+```{r echo=FALSE}
+tt$characters/tt$words
+qplot(name, weight = tt$characters/tt$words, data = tt)
+```
+
+## Conclusion
+
+I will probably learn separate models for each dataset, since people use language differently in them. Until now my code works good and is able to process all data sets complete. I will investigate how many number of lines I would need for training and test set and see if I should use another NLP package.
+
+## Future work
+
+* Evaluation of other NLP packages or parallelization of own code.
+* Create test and train datasets and set error rates and confidence level
+* Clean data of profanity words
+* Decide on n-Grams
+* Evaluate the limitations of shiny app
