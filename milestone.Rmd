@@ -4,10 +4,15 @@ author: "Uli Zellbeck"
 date: "16.11.2014"
 output: html_document
 ---
+## Disclaimer:
+
+Sorry for my broken english.
+
 ## Abstract 
 
-The objective of this report is to analyze the data for the Capstone Project. Therefore I analyzed the 3 data sets "twitter", "blogs" and "news". I will show that each data set have a different usage of language.
-As this report is supposed to be read by non-data-scientists you will not find any R-Code in it. If you are interested in the R-Code you can see it in my github.
+The objective of this report is to analyze the data for the Capstone Project. Therefore, I analyzed the 3 data sets "twitter", "blogs" and "news". I will show that each data set have a different usage of language.
+As this report is supposed to be read by non-data-scientists you will not find any R-Code in it. If you are interested in the R-Code you can see it in my github:
+https://github.com/ulizellbeck/capstone/blob/master/milestone.Rmd
 
 
 ### Analysis
