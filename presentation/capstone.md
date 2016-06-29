@@ -1,0 +1,117 @@
+<style>
+.section .reveal .state-background {
+  background: #2b3e50;
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+} 
+
+.exclaim .reveal .state-background {
+  background: #2b3e50;
+} 
+
+.section .reveal h1{
+  orphans:3;
+  widows:3;
+  color: #df691a;
+  margin-top: 21px;
+  margin-bottom: 10.5px;
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.section .reveal p{
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.exclaim .reveal li {
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 30px;
+  line-height: 1.42857;
+  color: #EBEBEB;
+}
+
+.exclaim .reveal a {
+  color: #df691a;
+}
+
+.exclaim .reveal h3 {
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+  orphans:3;
+  widows:3;
+  color: #df691a;
+}
+.exclaim .reveal p {
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 30px;
+  line-height: 1.42857;
+  color: #EBEBEB;
+}
+
+.exclaim .reveal p2 {
+  font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 30px;
+  line-height: 1.42857;
+  color: #df691a;
+}
+
+.exclaim .reveal title-slide {
+  background: #2b3e50; /* #EDE0CF; ; #CA9F9D*/
+}
+</style>
+
+Coursera Data Science Capstone: Predicting the next word
+========================================================
+
+Author: Uli Zellbeck <br>
+Date: 14.12.2014
+
+Project Overview
+========================================================
+type: exclaim
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+The goal of this project is to create a product to highlight the <p2>prediction algorithm</p2> that I have built and to provide an interface that can be accessed by others. <br> <br>
+For this project I submitted a <p2>Shiny app</p2> that takes as input a phrase (multiple words) in a text box input and outputs a prediction of the next word(s). <br> <br>
+The application can be found here: https://ulizellbeck.shinyapps.io/capstone/
+
+Prediction
+========================================================
+type: exclaim
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+<p2>Cleaning the data</p2>. Besides lowercasing and removing numbers the data is split by sentence not by line for better prediction. <br> <br>
+<p2>Extracting</p2> the last two words of the sentence. <br> <br>
+Looking up the words in the <p2>vocabulary</p2>. If the word is not included then replace it with < UNK >. <br> <br>
+Look up those two words in the token database and output the three words with the <p2>highest probability</p2>.
+
+More details on the algorithm
+========================================================
+type: exclaim
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+Algorithm is using <p2>N-Grams</P2> with backoff (3-gram, then 2-gram, then 1-gram). <br> <br>
+N-Grams are separated by last word of N-Gram (n) and words before (n-1).<br>
+The probability of any N-gram is calculated by dividing the frequency of N-Gram by the frequency of (n -1).<br> <br>
+The words that can predict 95% of the N-Grams are stored in a <p2>vocabulary</p2>. All words that are not in this vocabulary are replaced by < UNK >. <br>
+Hence it is possible to predict words for unknown words as they are also replaced by < UNK >.
+
+
+Shiny Application
+========================================================
+type: exclaim
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+The application can be found here: https://ulizellbeck.shinyapps.io/capstone/ <br> <br>
+Once the data is completely loaded you can type your sentence in the input field. <br> <br>
+After you click on the <p2>SUBMIT</p2> button the most probable words are shown on the right side separated by "|". The most probable word is in the first position.
+
+Future Improvements
+========================================================
+type: exclaim
+font-family: "Lato","Helvetica Neue",Helvetica,Arial,sans-serif;
+
+This application is designed for predicting inputs on mobile devices based on twitter and blog texts. It is thinkable of predicting other inputs and improve the code:
+* Using search terms as input (see for instance google).
+* Using more lines of input (currently 200.000 lines).
+* Try Markov Chains for creating probabilities.
+
+I used the following libraries in R: data.table, plyr, RWeka, Shiny, stringr, tm <br><br>
+Thanks for your audience and please feel free to contact me: ulizellbeck@gmail.com
